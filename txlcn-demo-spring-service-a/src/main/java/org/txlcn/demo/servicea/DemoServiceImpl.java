@@ -1,6 +1,8 @@
 package org.txlcn.demo.servicea;
 
 import com.codingapi.txlcn.common.util.Transactions;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
+import com.codingapi.txlcn.tc.annotation.TxcTransaction;
 import com.codingapi.txlcn.tracing.TracingContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +42,10 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Override
+    @TxcTransaction
     public String execute(String value, String exFlag) {
         // step1. call remote ServiceD
 //        String dResp = serviceBClient.rpc(value);
-
-        String dResp = restTemplate.getForObject("http://127.0.0.1:12002/rpc?value=" + value, String.class);
-
-        // step2. call remote ServiceE
-        String eResp = serviceCClient.rpc(value);
 
         // step3. execute local transaction
         Demo demo = new Demo();
@@ -57,10 +55,15 @@ public class DemoServiceImpl implements DemoService {
         demo.setAppName(Transactions.getApplicationId());
         demoMapper.save(demo);
 
+        String dResp = restTemplate.getForObject("http://127.0.0.1:12002/rpc?value=" + value, String.class);
+
+        // step2. call remote ServiceE
+        String eResp = serviceCClient.rpc(value);
+
         // 置异常标志，DTX 回滚
-        if (Objects.nonNull(exFlag)) {
-            throw new IllegalStateException("by exFlag");
-        }
+//        if (Objects.nonNull(exFlag)) {
+//            throw new IllegalStateException("by exFlag");
+//        }
 
         return dResp + " > " + eResp + " > " + "ok-service-a";
     }

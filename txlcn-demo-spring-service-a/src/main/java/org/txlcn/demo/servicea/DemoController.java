@@ -21,7 +21,7 @@ public class DemoController {
         this.demoService = demoService;
     }
 
-    @RequestMapping("/txlcn")
+    @RequestMapping("/txlcn/{id}")
     public String execute(@RequestParam("value") String value, @RequestParam(value = "ex", required = false) String exFlag) {
         return demoService.execute(value, exFlag);
     }

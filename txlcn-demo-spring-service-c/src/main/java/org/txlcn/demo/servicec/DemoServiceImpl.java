@@ -2,7 +2,9 @@ package org.txlcn.demo.servicec;
 
 import com.codingapi.txlcn.common.util.Transactions;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import com.codingapi.txlcn.tc.annotation.TccTransaction;
+import com.codingapi.txlcn.tc.annotation.TxcTransaction;
 import com.codingapi.txlcn.tc.support.DTXUserControls;
 import com.codingapi.txlcn.tracing.TracingContext;
 import com.google.common.collect.Sets;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.txlcn.demo.common.db.domain.Demo;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,7 +39,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     @Override
-    @TccTransaction(propagation = DTXPropagation.SUPPORTS)
+    @TxcTransaction(propagation = DTXPropagation.SUPPORTS)
     @Transactional
     public String rpc(String value) {
         Demo demo = new Demo();
@@ -47,20 +50,27 @@ public class DemoServiceImpl implements DemoService {
         demoMapper.save(demo);
         ids.putIfAbsent(TracingContext.tracing().groupId(), Sets.newHashSet(demo.getId()));
         ids.get(TracingContext.tracing().groupId()).add(demo.getId());
+//        this.test(value);
         return "ok-service-c";
     }
 
-    public void confirmRpc(String value) {
-        ids.get(TracingContext.tracing().groupId()).forEach(id -> {
-            log.info("tcc-confirm-{}-{}" + TracingContext.tracing().groupId(), id);
-            ids.get(TracingContext.tracing().groupId()).remove(id);
-        });
+    public void test(String value){
+        if (Objects.nonNull(value)) {
+            throw new IllegalStateException("by exFlag");
+        }
     }
 
-    public void cancelRpc(String value) {
-        ids.get(TracingContext.tracing().groupId()).forEach(id -> {
-            log.info("tcc-cancel-{}-{}", TracingContext.tracing().groupId(), id);
-            demoMapper.deleteByKId(id);
-        });
-    }
+//    public void confirmRpc(String value) {
+//        ids.get(TracingContext.tracing().groupId()).forEach(id -> {
+//            log.info("tcc-confirm-{}-{}" + TracingContext.tracing().groupId(), id);
+//            ids.get(TracingContext.tracing().groupId()).remove(id);
+//        });
+//    }
+
+//    public void cancelRpc(String value) {
+//        ids.get(TracingContext.tracing().groupId()).forEach(id -> {
+//            log.info("tcc-cancel-{}-{}", TracingContext.tracing().groupId(), id);
+//            demoMapper.deleteByKId(id);
+//        });
+//    }
 }

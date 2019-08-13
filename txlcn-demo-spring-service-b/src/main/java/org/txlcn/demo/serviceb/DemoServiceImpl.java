@@ -2,6 +2,7 @@ package org.txlcn.demo.serviceb;
 
 import com.codingapi.txlcn.common.util.Transactions;
 import com.codingapi.txlcn.tc.annotation.DTXPropagation;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import com.codingapi.txlcn.tc.annotation.TxcTransaction;
 import com.codingapi.txlcn.tracing.TracingContext;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.txlcn.demo.common.db.domain.Demo;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Description:
